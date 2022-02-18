@@ -1,0 +1,35 @@
+{{- if .Values.prometheus.monitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "query-exporter.fullname" . }}
+  labels:
+    app: {{ template "query-exporter.name" . }}
+    chart: {{ template "query-exporter.chart" . }}
+    heritage: {{ .Release.Service }}
+  {{- if .Values.prometheus.monitor.additionalLabels }}
+{{ toYaml .Values.prometheus.monitor.additionalLabels | indent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "query-exporter.name" . }}
+      release: {{ .Release.Name }}
+  endpoints:
+    - port: '9560'
+  {{- if .Values.prometheus.monitor.path }}
+      path: {{ .Values.prometheus.monitor.path }}
+  {{- else }}
+      path: /metrics
+  {{- end }}
+  {{- if .Values.prometheus.monitor.interval }}
+      interval: {{ .Values.prometheus.monitor.interval }}
+  {{- end }}
+  {{- if .Values.prometheus.monitor.namespace }}
+  namespaceSelector:
+    matchNames:
+    {{- range .Values.prometheus.monitor.namespace }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
