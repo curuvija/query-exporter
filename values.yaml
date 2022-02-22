@@ -88,6 +88,26 @@ prometheus:
     interval: 15s
     namespace: []
     path: "/metrics"
-  rules:
-    enabled: false
-    additionalLabels: {}
+
+config: |-
+  databases:
+    db1:
+      dsn: sqlite://
+      connect-sql:
+        - PRAGMA application_id = 123
+        - PRAGMA auto_vacuum = 1
+      labels:
+        region: us1
+        app: app1
+
+  metrics:
+    metric1:
+      type: gauge
+      description: A sample gauge
+
+  queries:
+    query1:
+      interval: 5
+      databases: [db1]
+      metrics: [metric1]
+      sql: SELECT random() / 1000000000000000 AS metric1
