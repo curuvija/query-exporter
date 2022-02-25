@@ -10,16 +10,19 @@ import (
 
 func TestPodTemplateRendersContainerImage(t *testing.T) {
 	// Path to the helm chart we will test
-	helmChartPath := "../"
+	helmChartPath := "../query-exporter/"
 
 	// Setup the args. For this test, we will set the following input values:
 	// - image=nginx:1.15.8
 	options := &helm.Options{
-		SetValues: map[string]string{"image": "adonato/query-exporter:2.8.0"},
+		SetValues: map[string]string{
+			"image.repository": "adonato/query-exporter",
+			"image.tag":        "latest",
+		},
 	}
 
 	// Run RenderTemplate to render the template and capture the output.
-	output := helm.RenderTemplate(t, options, helmChartPath, "deployment", []string{"templates/deployment.yaml"})
+	output := helm.RenderTemplate(t, options, helmChartPath, "query-exporter", []string{"templates/deployment.yaml"})
 
 	// Now we use kubernetes/client-go library to render the template output into the Pod struct. This will
 	// ensure the Pod resource is rendered correctly.
@@ -27,7 +30,7 @@ func TestPodTemplateRendersContainerImage(t *testing.T) {
 	helm.UnmarshalK8SYaml(t, output, &pod)
 
 	// Finally, we verify the pod spec is set to the expected container image value
-	expectedContainerImage := "adonato/query-exporter:2.8.0"
+	expectedContainerImage := "adonato/query-exporter:latest"
 	podContainers := pod.Spec.Containers
 	if podContainers[0].Image != expectedContainerImage {
 		t.Fatalf("Rendered container image (%s) is not expected (%s)", podContainers[0].Image, expectedContainerImage)

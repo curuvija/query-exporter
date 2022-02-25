@@ -30,7 +30,7 @@ func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 	}
 
 	// Run RenderTemplate to render the template and capture the output.
-	output := helm.RenderTemplate(t, options, helmChartPath, "minimal-pod", []string{})
+	output := helm.RenderTemplate(t, options, helmChartPath, "minimal-deployment", []string{})
 
 	// Make sure to delete the resources at the end of the test
 	defer k8s.KubectlDeleteFromString(t, kubectlOptions, output)
