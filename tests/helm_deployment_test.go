@@ -1,19 +1,27 @@
 package test
 
 import (
+	//"fmt"
+	//"reflect"
 	"testing"
 
-	corev1 "k8s.io/api/core/v1"
+	"github.com/stretchr/testify/require"
+	appsv1 "k8s.io/api/apps/v1"
+	//corev1 "k8s.io/api/core/v1"
 
 	"github.com/gruntwork-io/terratest/modules/helm"
 )
 
-func TestPodTemplateRendersContainerImage(t *testing.T) {
+// https://github.com/gruntwork-io/terratest/blob/master/test/helm_basic_example_template_test.go
+
+func TestDeployment(t *testing.T) {
+	t.Parallel()
 	// Path to the helm chart we will test
 	helmChartPath := "../query-exporter/"
+	releaseName := "query-exporter"
+	//require.NoError(t, err)
 
 	// Setup the args. For this test, we will set the following input values:
-	// - image=nginx:1.15.8
 	options := &helm.Options{
 		SetValues: map[string]string{
 			"image.repository": "adonato/query-exporter",
@@ -22,17 +30,32 @@ func TestPodTemplateRendersContainerImage(t *testing.T) {
 	}
 
 	// Run RenderTemplate to render the template and capture the output.
-	output := helm.RenderTemplate(t, options, helmChartPath, "query-exporter", []string{"templates/deployment.yaml"})
+	//output := helm.RenderTemplate(t, options, helmChartPath, "query-exporter", []string{"templates/service.yaml"})
+	output := helm.RenderTemplate(t, options, helmChartPath, releaseName, []string{"templates/deployment.yaml"})
+	//fmt.Println(options)
+	//fmt.Println(output)
 
 	// Now we use kubernetes/client-go library to render the template output into the Pod struct. This will
 	// ensure the Pod resource is rendered correctly.
-	var pod corev1.Pod
-	helm.UnmarshalK8SYaml(t, output, &pod)
+	var deployment appsv1.Deployment
+	helm.UnmarshalK8SYaml(t, output, &deployment)
+	//var service corev1.Service
+	//helm.UnmarshalK8SYaml(t, output, &service)
+	//fmt.Println(service)
 
 	// Finally, we verify the pod spec is set to the expected container image value
+	//expectedContainerImage := "adonato/query-exporter:latest"
+	//podContainers := pod.Spec.Containers
+	//expectedServiceType := "ClusterIP"
+	// serviceType := service.Spec.Ports
+	// fmt.Println(serviceType)
+	// fmt.Println(reflect.TypeOf(serviceType))
+	//fmt.Println(reflect.TypeOf(serviceType))
+	// if serviceType != expectedServiceType {
+	// 	t.Fatalf("Rendered service type (%s) is not expected (%s)", serviceType, expectedServiceType)
+	// }
 	expectedContainerImage := "adonato/query-exporter:latest"
-	podContainers := pod.Spec.Containers
-	if podContainers[0].Image != expectedContainerImage {
-		t.Fatalf("Rendered container image (%s) is not expected (%s)", podContainers[0].Image, expectedContainerImage)
-	}
+	deploymentContainers := deployment.Spec.Template.Spec.Containers
+	require.Equal(t, len(deploymentContainers), 1)
+	require.Equal(t, deploymentContainers[0].Image, expectedContainerImage)
 }
