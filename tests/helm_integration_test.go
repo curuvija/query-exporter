@@ -48,13 +48,12 @@ func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 // verifyService will open a tunnel to the Pod and hit the endpoint to verify the nginx welcome page is shown.
 func verifyService(t *testing.T, kubectlOptions *k8s.KubectlOptions, serviceName string) {
 	// Wait for the pod to come up. It takes some time for the Pod to start, so retry a few times.
-	retries := 5
+	retries := 15
 	sleep := 5 * time.Second
 	k8s.WaitUntilServiceAvailable(t, kubectlOptions, serviceName, retries, sleep)
 
 	// We will first open a tunnel to the pod, making sure to close it at the end of the test.
 	tunnel := k8s.NewTunnel(kubectlOptions, k8s.ResourceTypeService, serviceName, 9560, 9560)
-	fmt.Println("TUNNEL: ", tunnel)
 	defer tunnel.Close()
 	tunnel.ForwardPortE(t)
 
@@ -68,7 +67,7 @@ func verifyService(t *testing.T, kubectlOptions *k8s.KubectlOptions, serviceName
 		retries,
 		sleep,
 		func(statusCode int, body string) bool {
-			return statusCode == 200 && strings.Contains(body, "Metric are exported at the /metrics endpoint.")
+			return statusCode == 200 && strings.Contains(body, "Periodically run database queries and export results to Prometheus")
 		},
 	)
 }
