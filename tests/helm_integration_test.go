@@ -9,10 +9,13 @@ import (
 	"github.com/gruntwork-io/terratest/modules/helm"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/k8s"
-	"github.com/gruntwork-io/terratest/modules/random"
+	//"github.com/gruntwork-io/terratest/modules/random"
 )
 
 // check this example for more details https://github.com/gruntwork-io/terratest/blob/master/test/helm_basic_example_integration_test.go
+// this kind of name assigned by deployment but on function you expect the one generated like this query-exporter-v7usdc
+// change the logic to not name the pod in main test function
+// make for service as an example https://pkg.go.dev/github.com/gruntwork-io/terratest/modules/k8s#WaitUntilServiceAvailable
 
 func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 	helmChartPath := "../query-exporter/"
@@ -22,7 +25,7 @@ func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 	kubectlOptions := k8s.NewKubectlOptions("", "", "default")
 
 	// We use a fullnameOverride so we can find the Pod later during verification
-	podName := fmt.Sprintf("%s-%s", releaseName, strings.ToLower(random.UniqueId()))
+	serviceName := releaseName
 	options := &helm.Options{
 		SetValues: map[string]string{
 			"image.repository": "adonato/query-exporter",
@@ -30,7 +33,7 @@ func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 		},
 	}
 
-	// Run RenderTemplate to render the template and capture the output.
+	// This is where you render your helm chart
 	output := helm.RenderTemplate(t, options, helmChartPath, releaseName, []string{})
 
 	// Make sure to delete the resources at the end of the test
@@ -39,23 +42,21 @@ func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 	// Now use kubectl to apply the rendered template
 	k8s.KubectlApplyFromString(t, kubectlOptions, output)
 
-	// Now that the chart is deployed, verify the deployment. This function will open a tunnel to the Pod and hit the
-	// nginx container endpoint.
-	verifyPod(t, kubectlOptions, podName)
-	// fmt.Println(podName)
+	verifyService(t, kubectlOptions, serviceName)
 }
 
-// verifyPod will open a tunnel to the Pod and hit the endpoint to verify the nginx welcome page is shown.
-func verifyPod(t *testing.T, kubectlOptions *k8s.KubectlOptions, podName string) {
+// verifyService will open a tunnel to the Pod and hit the endpoint to verify the nginx welcome page is shown.
+func verifyService(t *testing.T, kubectlOptions *k8s.KubectlOptions, serviceName string) {
 	// Wait for the pod to come up. It takes some time for the Pod to start, so retry a few times.
-	retries := 15
+	retries := 5
 	sleep := 5 * time.Second
-	k8s.WaitUntilPodAvailable(t, kubectlOptions, podName, retries, sleep)
+	k8s.WaitUntilServiceAvailable(t, kubectlOptions, serviceName, retries, sleep)
 
 	// We will first open a tunnel to the pod, making sure to close it at the end of the test.
-	tunnel := k8s.NewTunnel(kubectlOptions, k8s.ResourceTypePod, podName, 0, 9560)
+	tunnel := k8s.NewTunnel(kubectlOptions, k8s.ResourceTypeService, serviceName, 9560, 9560)
+	fmt.Println("TUNNEL: ", tunnel)
 	defer tunnel.Close()
-	tunnel.ForwardPort(t)
+	tunnel.ForwardPortE(t)
 
 	// ... and now that we have the tunnel, we will verify that we get back a 200 OK with the nginx welcome page.
 	// It takes some time for the Pod to start, so retry a few times.
