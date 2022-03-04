@@ -12,11 +12,6 @@ import (
 	//"github.com/gruntwork-io/terratest/modules/random"
 )
 
-// check this example for more details https://github.com/gruntwork-io/terratest/blob/master/test/helm_basic_example_integration_test.go
-// this kind of name assigned by deployment but on function you expect the one generated like this query-exporter-v7usdc
-// change the logic to not name the pod in main test function
-// make for service as an example https://pkg.go.dev/github.com/gruntwork-io/terratest/modules/k8s#WaitUntilServiceAvailable
-
 func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
 	helmChartPath := "../query-exporter/"
 	releaseName := "query-exporter"
