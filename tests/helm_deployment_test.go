@@ -29,8 +29,6 @@ func TestDeployment(t *testing.T) {
 		},
 	}
 
-	fmt.Println(options)
-
 	// Run RenderTemplate to render the template and capture the output.
 	output := helm.RenderTemplate(t, options, helmChartPath, releaseName, []string{"templates/deployment.yaml"})
 	fmt.Println(output)
