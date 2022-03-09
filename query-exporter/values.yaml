@@ -2,25 +2,29 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- number of pods to run
 replicaCount: 1
 
+# -- Image to use for deployment
 image:
   repository: adonato/query-exporter
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
+# -- Image pull secrets if you want to host the image
 imagePullSecrets: []
+
 nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # -- Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
+  # -- Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # -- The name of the service account to use.
+  # -- If not set and create is true, a name is generated using the fullname template
   name: ""
 
 podAnnotations: {}
@@ -89,6 +93,7 @@ prometheus:
     namespace: []
     path: "/metrics"
 
+# -- Configure your database access and metrics to expose
 config: |-
   databases:
     db1:
