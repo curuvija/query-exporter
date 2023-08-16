@@ -4,8 +4,24 @@ tasks:
   lint:
     desc: run linters on Helm chart
     cmds:
+      - helm lint query-exporter
       - helm template query-exporter | kubeval
   docs:
     desc: renders docs
     cmds:
-      - helm-docs query-exporter/ && cp query-exporter/README.md .
+      - helm-docs query-exporter && cp query-exporter/README.md .
+  package:
+    desc: package helm chart
+    cmds:
+      - cr package query-exporter
+  upload:
+    desc: upload packaged helm chart to github repository releases page
+    cmds:
+      - cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token $GITHUB_TOKEN
+  release:
+    desc: release helm chart manually
+    cmds:
+      - task: lint
+      - task: docs
+      - task: package
+      - task: upload

@@ -6,8 +6,8 @@ A Helm chart for query-exporter (export Prometheus metrics from SQL queries)
 
 ## Additional Information
 
-[query-exporter](https://github.com/albertodonato/query-exporter) exposes Prometheus metrics based on SQL queries. It supports 
-different databases. You can find more details about it here https://github.com/albertodonato/query-exporter. 
+[query-exporter](https://github.com/albertodonato/query-exporter) exposes Prometheus metrics based on SQL queries. It supports
+different databases. You can find more details about it here https://github.com/albertodonato/query-exporter.
 
 ## Maintainers
 
@@ -22,7 +22,7 @@ To install the chart with the release name `my-release`:
 ```console
 $ helm repo add curuvija https://curuvija.github.io/helm-charts/
 $ helm repo update
-$ helm install curuvija/query-exporter --version 0.1.0
+$ helm install curuvija/query-exporter --version 1.0.0
 ```
 
 ## Configure Prometheus scraping
