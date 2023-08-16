@@ -1,27 +1,37 @@
 version: '3'
 
+env:
+  CHART_NAME: query-exporter
+  CHART_PATH: query-exporter
+  GITHUB_REPO: query-exporter
+
 tasks:
   lint:
     desc: run linters on Helm chart
     cmds:
-      - helm lint query-exporter
-      - helm template query-exporter | kubeval
+      - helm lint $CHART_PATH
+      - helm template $CHART_PATH | kubeval
   docs:
     desc: renders docs
     cmds:
-      - helm-docs query-exporter && cp query-exporter/README.md .
+      - helm-docs $CHART_PATH && cp $CHART_PATH/README.md .
+  test:
+    desc: test helm chart
+    cmds:
+      - cd tests && go test ./...
   package:
     desc: package helm chart
     cmds:
-      - cr package query-exporter
+      - cr package $CHART_PATH
   upload:
     desc: upload packaged helm chart to github repository releases page
     cmds:
-      - cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token $GITHUB_TOKEN
+      - cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GITHUB_TOKEN
   release:
     desc: release helm chart manually
     cmds:
       - task: lint
       - task: docs
+      - task: test
       - task: package
       - task: upload

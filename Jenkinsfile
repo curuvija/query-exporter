@@ -30,7 +30,9 @@ pipeline {
         // TODO: Terratest (you need to install prometheus crds)
         stage('Test') {
             steps {
-                sh 'echo something'
+                container('helm') {
+                    sh 'cd tests && go test ./...'
+                }
             }
         }
         stage('Template') {
