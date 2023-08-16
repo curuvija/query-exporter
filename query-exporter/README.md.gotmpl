@@ -5,11 +5,8 @@
 
 ## Additional Information
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+[query-exporter](https://github.com/albertodonato/query-exporter) exposes Prometheus metrics based on SQL queries. It supports 
+different databases. You can find more details about it here https://github.com/albertodonato/query-exporter. 
 
 {{ template "chart.maintainersSection" . }}
 
@@ -18,8 +15,34 @@ culpa qui officia deserunt mollit anim id est laborum.
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add foo-bar http://charts.foo-bar.com
-$ helm install my-release foo-bar/{{ template "chart.name" . }}
+$ helm repo add curuvija https://curuvija.github.io/helm-charts/
+$ helm repo update
+$ helm install curuvija/query-exporter --version 0.1.0
+```
+
+## Configure Prometheus scraping
+
+If you use Prometheus operator ServiceMonitor will be created to configure your instance to scrape it.
+
+If you don't use Prometheus operator then you can use this configuration to configure scraping:
+
+```yaml
+    additionalScrapeConfigs:
+    - job_name: query-exporter-scrape
+      honor_timestamps: true
+      scrape_interval: 15s
+      scrape_timeout: 10s
+      metrics_path: /metrics
+      scheme: http
+      follow_redirects: true
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_label_app_kubernetes_io_instance, __meta_kubernetes_service_labelpresent_app_kubernetes_io_instance]
+        separator: ;
+        regex: (query-exporter);true
+        replacement: $1
+        action: keep
+      kubernetes_sd_configs:
+      - role: endpoints
 ```
 
 {{ template "chart.requirementsSection" . }}

@@ -48,6 +48,8 @@ Selector labels
 {{- define "query-exporter.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "query-exporter.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ .Release.Name }}
+release: {{ .Release.Name }}
 {{- end }}
 
 {{/*

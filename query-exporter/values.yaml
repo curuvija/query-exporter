@@ -2,20 +2,24 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# -- number of pods to run
+# -- replicaCount - number of pods to run
 replicaCount: 1
 
 # -- Image to use for deployment
 image:
+  # -- repository to pull image
   repository: adonato/query-exporter
+  # -- define pull policy
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: "2.8.3"
 
 # -- Image pull secrets if you want to host the image
 imagePullSecrets: []
 
+# -- overrides name (partial name override - chartName + nameOverride)
 nameOverride: ""
+# -- overrides name without having chartName in front of it
 fullnameOverride: ""
 
 serviceAccount:
@@ -27,70 +31,113 @@ serviceAccount:
   # -- If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# -- pod annotations
 podAnnotations: {}
 
+# -- define pod security context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# -- define security context https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-capabilities-for-a-container
+securityContext:
+  # -- Mounts the container's root filesystem as read-only.
+  readOnlyRootFilesystem: true
+  # -- run docker container as non root user.
+  runAsNonRoot: true
+  # -- specify under which user all processes inside container will run.
+  runAsUser: 1000
 
+# -- service configuration
 service:
+  # -- service type
   type: ClusterIP
+  # -- service port
   port: 9560
 
+# -- ingress configuration
 ingress:
+  # -- enable or disable ingress configuration creation
   enabled: false
+  # -- ingress class name
   className: ""
+  # -- ingress annotations
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+  # -- hosts
   hosts:
+    # -- hostname
     - host: chart-example.local
+      # -- paths
       paths:
+        # -- path
         - path: /
+          # -- path type
           pathType: ImplementationSpecific
+  # -- tls configuration
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# -- specify resources
+resources:
+  # -- specify resource limits
+  limits:
+    # -- specify resource limits for cpu
+    cpu: 100m
+    # -- specify resource limits for memory
+    memory: 128Mi
+  requests:
+    # -- specify resource requests for cpu
+    cpu: 100m
+    # -- specify resource requests for memory
+    memory: 128Mi
 
+## -- autoscale pods with HPA
 autoscaling:
+  # -- enable or disable autoscaling
   enabled: false
+  # -- minimum number of replicas
   minReplicas: 1
+  # -- maximum number of replicas
   maxReplicas: 100
+  # -- configure at what percentage to trigger autoscalling
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# -- define node selector to schedule your pod(s)
 nodeSelector: {}
 
+# -- provide tolerations
 tolerations: []
 
+# -- configure affinity
 affinity: {}
 
+# -- configure liveness probe
+livenessProbe:
+  httpGet:
+    path: /
+    port: 9560
+# -- configure readiness probe
+readinessProbe:
+  httpGet:
+    path: /
+    port: 9560
+
+# -- configure Prometheus Service monitor to expose metrics
 prometheus:
   monitor:
-    enabled: false
+    # -- enable or disable creation of service monitor
+    enabled: true
+    # -- add additonal labels to service monitoring
     additionalLabels: {}
+    # -- Prometheus scraping interval
     interval: 15s
+    # -- provide namespace where to create this service monitor
     namespace: []
+    # -- path where you want to expose metrics
     path: "/metrics"
 
 # -- Configure your database access and metrics to expose

@@ -1,8 +1,9 @@
 pipeline {
-    agent { label 'k8s-ansible-pod' }
+    agent { label 'k8s-helm-pod' }
 
     options{
         buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '5'))
+        GITHUB_TOKEN = credentials('github_curuvija_jcasc')
     }
 
     stages {
@@ -11,7 +12,9 @@ pipeline {
         // TODO: kube-hunter -> https://aquasecurity.github.io/kube-hunter/
         stage('Lint') {
             steps {
-                sh 'echo something'
+                container('helm') {
+                    helm lint 'query-exporter/'
+                }
             }
         }
         // TODO: polaris https://github.com/FairwindsOps/polaris
@@ -20,15 +23,15 @@ pipeline {
                 sh 'echo something'
             }
         }
-        // TODO: Terratest
+        // TODO: Terratest (you need to install prometheus crds)
         stage('Test') {
             steps {
                 sh 'echo something'
             }
         }
         stage('Template') {
-            steps {
-                sh 'echo something'
+            container('helm') {
+                sh 'helm template query-exporter/'
             }
         }
         stage('Dry run') {
@@ -36,15 +39,11 @@ pipeline {
                 sh 'echo something'
             }
         }
-        stage('Package') {
+        stage('Generate docs') {
             steps {
-                sh 'echo something'
-            }
-        }
-        // TODO: helm-docs
-        stage('Docs') {
-            steps {
-                sh 'echo something'
+                container('helm') {
+                    sh 'helm docs query-exporter/ && cp query-exporter/README.md .'
+                }
             }
         }
         // TODO: git-chglog - https://github.com/git-chglog/git-chglog
@@ -53,12 +52,47 @@ pipeline {
                 sh 'echo something'
             }
         }
+        stage('Package Helm chart') {
+            steps {
+                container('helm') {
+                    cr package query-exporter/
+                }
+            }
+        }
+        stage('Upload Helm chart to releases') {
+            when {
+                allOf {
+                    expression {
+                        env.BRANCH_NAME == 'master'
+                    }
+                }
+            }
+            steps {
+                container('helm') {
+                    sh 'cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token ${GITHUB_TOKEN_PSW}'
+                }
+            }
+        }
         stage('Publish') {
+            when {
+                allOf {
+                    expression {
+                        env.BRANCH_NAME == 'master'
+                    }
+                }
+            }
             steps {
                 sh 'echo something'
             }
         }
         stage('Tag') {
+            when {
+                allOf {
+                    expression {
+                        env.BRANCH_NAME == 'master'
+                    }
+                }
+            }
             steps {
                 sh 'echo something'
             }

@@ -13,10 +13,9 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ template "query-exporter.name" . }}
-      release: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   endpoints:
-    - port: '9560'
+    - port: http
   {{- if .Values.prometheus.monitor.path }}
       path: {{ .Values.prometheus.monitor.path }}
   {{- else }}

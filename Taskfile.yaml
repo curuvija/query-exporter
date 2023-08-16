@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  lint:
+    desc: run linters on Helm chart
+    cmds:
+      - helm template query-exporter | kubeval
+  docs:
+    desc: renders docs
+    cmds:
+      - helm-docs query-exporter/ && cp query-exporter/README.md .

@@ -46,13 +46,9 @@ spec:
             - containerPort: 9560
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /
-              port: 9560
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: 9560
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
