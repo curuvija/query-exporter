@@ -3,8 +3,12 @@ pipeline {
 
     options{
         buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '5'))
+    }
+
+    environment {
         GITHUB_TOKEN = credentials('github_curuvija_jcasc')
     }
+
 
     stages {
         // TODO: kube-linter -> https://github.com/stackrox/kube-linter (kube-score, kubeconform, kubeeval, datree, kics -> https://kics.io/index.html
@@ -13,7 +17,7 @@ pipeline {
         stage('Lint') {
             steps {
                 container('helm') {
-                    helm lint 'query-exporter/'
+                    sh 'helm lint query-exporter/'
                 }
             }
         }
@@ -30,8 +34,10 @@ pipeline {
             }
         }
         stage('Template') {
-            container('helm') {
-                sh 'helm template query-exporter/'
+            steps {
+                container('helm') {
+                    sh 'helm template query-exporter/'
+                }
             }
         }
         stage('Dry run') {
@@ -42,7 +48,7 @@ pipeline {
         stage('Generate docs') {
             steps {
                 container('helm') {
-                    sh 'helm docs query-exporter/ && cp query-exporter/README.md .'
+                    sh 'helm-docs query-exporter/ && cp query-exporter/README.md .'
                 }
             }
         }
@@ -55,7 +61,7 @@ pipeline {
         stage('Package Helm chart') {
             steps {
                 container('helm') {
-                    cr package query-exporter/
+                    sh 'cr package query-exporter/'
                 }
             }
         }
