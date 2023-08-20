@@ -1,5 +1,5 @@
-//go:build integration
-// +build integration
+//go:build all || integration
+// +build all integration
 
 package test
 
@@ -12,11 +12,10 @@ import (
 	"github.com/gruntwork-io/terratest/modules/helm"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/k8s"
-	//"github.com/gruntwork-io/terratest/modules/random"
 )
 
 func TestPodDeploysContainerImageHelmTemplateEngine(t *testing.T) {
-	helmChartPath := "../query-exporter/"
+	helmChartPath := "../../charts/query-exporter/"
 	releaseName := "query-exporter"
 
 	// we are working in default namespace using current kubectl context
