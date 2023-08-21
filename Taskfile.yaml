@@ -22,11 +22,15 @@ tasks:
   package:
     desc: package helm chart
     cmds:
+      - rm -rf .cr-release-packages/
+      - git checkout master
       - cr package $CHART_PATH
   upload:
     desc: upload packaged helm chart to github repository releases page
     cmds:
-      - cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GITHUB_TOKEN
+      - git checkout master
+      - cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GITHUB_TOKEN --release-notes-file CHANGELOG.md
+      - cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $GITHUB_TOKEN --release-notes-file CHANGELOG.md
   release:
     desc: release helm chart manually
     cmds:
