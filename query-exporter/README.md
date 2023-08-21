@@ -15,12 +15,12 @@ different databases. You can find more details about it here https://github.com/
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`:
+To install the chart run:
 
 ```console
 $ helm repo add curuvija https://curuvija.github.io/helm-charts/
 $ helm repo update
-$ helm install curuvija/query-exporter
+$ helm install query-exporter curuvija/query-exporter
 ```
 
 ## Configure Prometheus scraping
