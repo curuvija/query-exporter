@@ -1,10 +1,14 @@
 apiVersion: v2
 name: query-exporter
+type: application
 version: 1.0.0
+appVersion: "2.8.3"
 description: A Helm chart for query-exporter (export Prometheus metrics from SQL queries)
 maintainers:
   - name: 'Milos Curuvija'
     email: 'curuvija@live.com'
-
-type: application
-appVersion: "2.8.3"
+annotations:
+  artifacthub.io/category: monitoring-logging
+  artifacthub.io/maintainers: |
+    - name: "Milos Curuvija"
+      email: curuvija@live.com

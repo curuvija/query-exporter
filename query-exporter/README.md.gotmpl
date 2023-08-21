@@ -1,8 +1,6 @@
 {{ template "chart.header" . }}
 {{ template "chart.description" . }}
 
-{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
-
 ## Additional Information
 
 [query-exporter](https://github.com/albertodonato/query-exporter) exposes Prometheus metrics based on SQL queries. It supports
@@ -17,7 +15,7 @@ To install the chart with the release name `my-release`:
 ```console
 $ helm repo add curuvija https://curuvija.github.io/helm-charts/
 $ helm repo update
-$ helm install curuvija/query-exporter --version 1.0.0
+$ helm install curuvija/query-exporter --version 0.1.0
 ```
 
 ## Configure Prometheus scraping
