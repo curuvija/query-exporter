@@ -15,7 +15,7 @@ func TestRenderTemplatesWithDefaultValuesShouldReturnNoError(t *testing.T) {
 	var templates []string
 
 	releaseName := "query-exporter"
-	helmChartPath, err := filepath.Abs(filepath.Join("..", "..", "charts", "query-exporter"))
+	helmChartPath, err := filepath.Abs(filepath.Join("..", "query-exporter"))
 	require.NoError(t, err)
 
 	templates = []string{

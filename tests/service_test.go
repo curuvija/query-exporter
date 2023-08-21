@@ -1,4 +1,7 @@
-package query_exporter
+//go:build all || template
+// +build all template
+
+package test
 
 import (
 	"github.com/gruntwork-io/terratest/modules/helm"
