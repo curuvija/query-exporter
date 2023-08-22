@@ -15,10 +15,14 @@ tasks:
     desc: renders docs
     cmds:
       - helm-docs $CHART_PATH && cp $CHART_PATH/README.md .
-  test:
+  tests:
     desc: test helm chart
     cmds:
       - cd tests && go test ./...
+  tests.integration:
+    desc: test helm chart
+    cmds:
+      - cd tests && go test --tags=integration
   package:
     desc: package helm chart
     cmds:
@@ -39,3 +43,7 @@ tasks:
       - task: test
       - task: package
       - task: upload
+  templates:
+    desc: renders templates into folder
+    cmds:
+      - helm template default query-exporter/ > tests/rendered_templates/default.yaml
