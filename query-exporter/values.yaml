@@ -12,7 +12,7 @@ image:
   # -- define pull policy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
-  tag: "2.8.3"
+  tag: "2.9.0"
 
 # -- Image pull secrets if you want to host the image
 imagePullSecrets: []
@@ -140,26 +140,7 @@ prometheus:
     # -- path where you want to expose metrics
     path: "/metrics"
 
-# -- Configure your database access and metrics to expose
-config: |-
-  databases:
-    db1:
-      dsn: sqlite://
-      connect-sql:
-        - PRAGMA application_id = 123
-        - PRAGMA auto_vacuum = 1
-      labels:
-        region: us1
-        app: app1
+# -- Loads configuration from existing secret
+configSecretName: "query-exporter-config-secret"
 
-  metrics:
-    metric1:
-      type: gauge
-      description: A sample gauge
 
-  queries:
-    query1:
-      interval: 5
-      databases: [db1]
-      metrics: [metric1]
-      sql: SELECT random() / 1000000000000000 AS metric1

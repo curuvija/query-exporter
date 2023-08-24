@@ -1,4 +1,4 @@
-package test
+package integration_test
 
 import (
 	"fmt"
@@ -6,10 +6,16 @@ import (
 	httphelper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/k8s"
 	"github.com/stretchr/testify/require"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+)
+
+var (
+	helmChartPath  = "../query-exporter"
+	releaseName    = "query-exporter"
+	kubectlContext = "docker-desktop"
+	namespaceName  = "terratest"
 )
 
 func TestMain(m *testing.M) {
@@ -31,15 +37,14 @@ func TestMain(m *testing.M) {
 	}
 
 	helm.AddRepo(&t, prometheusOptions, "prometheus-community", "https://prometheus-community.github.io/helm-charts")
-	// TODO: install postgresql
 	helm.Install(&t, prometheusOptions, "prometheus-community/kube-prometheus-stack", "kube-prometheus-stack")
 
 	testingChartOptions := &helm.Options{KubectlOptions: &kubectlOptions}
+	helm.Install(&t, testingChartOptions, helmChartPath, releaseName)
 
-	testingChartPath, err := filepath.Abs("../query-exporter")
-	require.NoError(&t, err)
-
-	helm.Install(&t, testingChartOptions, testingChartPath, "query-exporter")
+	postgresOptions := &helm.Options{Version: "12.8.5", KubectlOptions: &kubectlOptions}
+	helm.AddRepo(&t, postgresOptions, "", "oci://registry-1.docker.io/bitnamicharts/postgresql")
+	helm.Install(&t, postgresOptions, "postgresql", "postgres")
 	m.Run()
 }
 
