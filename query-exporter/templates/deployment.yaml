@@ -25,8 +25,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "query-exporter.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- else }}
+      securityContext: {}
+      {{- end }}
       volumes:
         - name: config-from-secret-volume
           secret:
@@ -34,8 +38,12 @@ spec:
             defaultMode: 420
       containers:
         - name: {{ .Chart.Name }}
+          {{- if .Values.securityContext }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- else }}
+          securityContext: {}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
