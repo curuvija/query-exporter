@@ -25,23 +25,32 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "query-exporter.serviceAccountName" . }}
+      {{- if .Values.podSecurityContext }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- else }}
+      securityContext: {}
+      {{- end }}
       volumes:
-        - name: cm-query-exporter-volume
-          configMap:
-            name: {{ include "query-exporter.fullname" . }}-cm
+        - name: config-from-secret-volume
+          secret:
+            secretName: {{ .Values.configSecretName }}
             defaultMode: 420
       containers:
         - name: {{ .Chart.Name }}
+          {{- if .Values.securityContext }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- else }}
+          securityContext: {}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - name: cm-query-exporter-volume
+            - name: config-from-secret-volume
               mountPath: /config.yaml
               subPath: config.yaml
+              readOnly: true
           ports:
             - containerPort: 9560
               protocol: TCP

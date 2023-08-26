@@ -1,0 +1,163 @@
+---
+# Source: query-exporter/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default-query-exporter
+  labels:
+    helm.sh/chart: query-exporter-1.0.0
+    app.kubernetes.io/name: query-exporter
+    app.kubernetes.io/instance: default
+    app: default
+    release: default
+    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: query-exporter/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-query-exporter-cm
+  labels:
+    helm.sh/chart: query-exporter-1.0.0
+    app.kubernetes.io/name: query-exporter
+    app.kubernetes.io/instance: default
+    app: default
+    release: default
+    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.yaml: |-
+    databases:
+      db1:
+        dsn: sqlite://
+        connect-sql:
+          - PRAGMA application_id = 123
+          - PRAGMA auto_vacuum = 1
+        labels:
+          region: us1
+          app: app1
+    
+    metrics:
+      metric1:
+        type: gauge
+        description: A sample gauge
+    
+    queries:
+      query1:
+        interval: 5
+        databases: [db1]
+        metrics: [metric1]
+        sql: SELECT random() / 1000000000000000 AS metric1
+---
+# Source: query-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-query-exporter
+  labels:
+    helm.sh/chart: query-exporter-1.0.0
+    app.kubernetes.io/name: query-exporter
+    app.kubernetes.io/instance: default
+    app: default
+    release: default
+    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9560
+      targetPort: 9560
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: query-exporter
+    app.kubernetes.io/instance: default
+    app: default
+    release: default
+---
+# Source: query-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: default-query-exporter
+  labels:
+    helm.sh/chart: query-exporter-1.0.0
+    app.kubernetes.io/name: query-exporter
+    app.kubernetes.io/instance: default
+    app: default
+    release: default
+    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: query-exporter
+      app.kubernetes.io/instance: default
+      app: default
+      release: default
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: query-exporter
+        app.kubernetes.io/instance: default
+        app: default
+        release: default
+    spec:
+      serviceAccountName: default-query-exporter
+      securityContext:
+        {}
+      volumes:
+        - name: cm-query-exporter-volume
+          configMap:
+            name: default-query-exporter-cm
+            defaultMode: 420
+      containers:
+        - name: query-exporter
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: "adonato/query-exporter:2.8.3"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: cm-query-exporter-volume
+              mountPath: /config.yaml
+              subPath: config.yaml
+          ports:
+            - containerPort: 9560
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9560
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9560
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: query-exporter/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: default-query-exporter
+  labels:
+    app: query-exporter
+    chart: query-exporter-1.0.0
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: default
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

@@ -15,6 +15,41 @@ different databases. You can find more details about it here https://github.com/
 
 ## Installing the Chart
 
+You have to create a secret first. Secret contains configuration for query-exporter. Here is an example configuration for `sqlite` database. You can find more examples [here](https://github.com/albertodonato/query-exporter/tree/main/examples).
+
+```yaml
+databases:
+  db1:
+    dsn: sqlite://
+    connect-sql:
+      - PRAGMA application_id = 123
+      - PRAGMA auto_vacuum = 1
+    labels:
+      region: us1
+      app: app1
+
+metrics:
+  metric1:
+    type: gauge
+    description: A sample gauge
+
+queries:
+  query1:
+    interval: 5
+    databases: [db1]
+    metrics: [metric1]
+    sql: SELECT random() / 1000000000000000 AS metric1
+```
+Put this configuration into a file named `config.yaml` (this name is important since the key under `data` in created secret will contain exactly `config.yaml` which is later needed as a mount point in deployment `volumeMounts`).
+
+Now create the secret in the namespace you want to deploy `query-exporter` Helm chart. For default namespace just run:
+
+```bash
+kubectl create secret generic --from-file=./config.yaml query-exporter-config-secret
+```
+
+If you want to change secret name from `query-exporter-config-secret` to something else change `configSecretName` in the values file.
+
 To install the chart run:
 
 ```console
@@ -25,9 +60,9 @@ $ helm install query-exporter curuvija/query-exporter
 
 ## Configure Prometheus scraping
 
-If you use Prometheus operator ServiceMonitor will be created to configure your instance to scrape it.
+If you use Prometheus operator ServiceMonitor will be created by default to configure your instance to scrape it.
 
-If you don't use Prometheus operator then you can use this configuration to configure scraping:
+If you don't use Prometheus operator then you can use this configuration to configure scraping (and disable ServiceMonitor creation):
 
 ```yaml
     additionalScrapeConfigs:
@@ -48,6 +83,53 @@ If you don't use Prometheus operator then you can use this configuration to conf
       - role: endpoints
 ```
 
+## Metrics
+
+Pod listens by defayult on port `9560`. You can use port-forward to inspect its output at `http://localhost:9560/metrics`. Here is an example output you can expect with `sqldb` configuration example:
+
+```text
+# HELP database_errors_total Number of database errors
+# TYPE database_errors_total counter
+# HELP queries_total Number of database queries
+# TYPE queries_total counter
+queries_total{app="app1",database="db1",query="query1",region="us1",status="success"} 10.0
+# HELP queries_created Number of database queries
+# TYPE queries_created gauge
+queries_created{app="app1",database="db1",query="query1",region="us1",status="success"} 1.6928516313686748e+09
+# HELP query_latency Query execution latency
+# TYPE query_latency histogram
+query_latency_bucket{app="app1",database="db1",le="0.005",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.01",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.025",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.05",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.075",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.1",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.25",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.5",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="0.75",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="1.0",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="2.5",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="5.0",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="7.5",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="10.0",query="query1",region="us1"} 10.0
+query_latency_bucket{app="app1",database="db1",le="+Inf",query="query1",region="us1"} 10.0
+query_latency_count{app="app1",database="db1",query="query1",region="us1"} 10.0
+query_latency_sum{app="app1",database="db1",query="query1",region="us1"} 0.00021720037329941988
+# HELP query_latency_created Query execution latency
+# TYPE query_latency_created gauge
+query_latency_created{app="app1",database="db1",query="query1",region="us1"} 1.6928516313685274e+09
+# HELP metric1 A sample gauge
+# TYPE metric1 gauge
+metric1{app="app1",database="db1",region="us1"} 8800.0
+```
+
+## Upgrade from version 1.x.x
+
+**Breaking changes:** removed configmap configuration in favor of more secure configuration from secret (check README for more details)
+
+* move config into secrets as explained in [Installing the Chart](#installing-the-chart) section
+* run `helm upgrade` command
+
 
 
 ## Values
@@ -59,12 +141,12 @@ If you don't use Prometheus operator then you can use this configuration to conf
 | autoscaling.maxReplicas | int | `100` | maximum number of replicas |
 | autoscaling.minReplicas | int | `1` | minimum number of replicas |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | configure at what percentage to trigger autoscalling |
-| config | string | `"databases:\n  db1:\n    dsn: sqlite://\n    connect-sql:\n      - PRAGMA application_id = 123\n      - PRAGMA auto_vacuum = 1\n    labels:\n      region: us1\n      app: app1\n\nmetrics:\n  metric1:\n    type: gauge\n    description: A sample gauge\n\nqueries:\n  query1:\n    interval: 5\n    databases: [db1]\n    metrics: [metric1]\n    sql: SELECT random() / 1000000000000000 AS metric1"` | Configure your database access and metrics to expose |
+| configSecretName | string | `"query-exporter-config-secret"` | Loads configuration from existing secret |
 | fullnameOverride | string | `""` | overrides name without having chartName in front of it |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"adonato/query-exporter","tag":"2.8.3"}` | Image to use for deployment |
+| image | object | `{"pullPolicy":"IfNotPresent","repository":"adonato/query-exporter","tag":"2.9.0"}` | Image to use for deployment |
 | image.pullPolicy | string | `"IfNotPresent"` | define pull policy |
 | image.repository | string | `"adonato/query-exporter"` | repository to pull image |
-| image.tag | string | `"2.8.3"` | Overrides the image tag whose default is the chart appVersion. |
+| image.tag | string | `"2.9.0"` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | Image pull secrets if you want to host the image |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | ingress configuration |
 | ingress.annotations | object | `{}` | ingress annotations |

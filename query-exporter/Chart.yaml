@@ -1,8 +1,8 @@
 apiVersion: v2
 name: query-exporter
 type: application
-version: 1.0.0
-appVersion: "2.8.3"
+version: 2.0.0
+appVersion: "2.9.0"
 description: A Helm chart for query-exporter (export Prometheus metrics from SQL queries)
 maintainers:
   - name: 'Milos Curuvija'
@@ -12,3 +12,10 @@ annotations:
   artifacthub.io/maintainers: |
     - name: "Milos Curuvija"
       email: curuvija@live.com
+  artifacthub.io/changes: |
+    - default docker image tag set to 2.9.0
+    - configuration loaded from secret instead of from configmap
+    - fixed yaml inconsistencies in deployment template
+  artifacthub.io/links: |
+      - name: support
+        url: https://github.com/curuvija/query-exporter/issues
