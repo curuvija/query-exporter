@@ -5,50 +5,13 @@ kind: ServiceAccount
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-1.0.0
+    helm.sh/chart: query-exporter-2.0.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/version: "2.9.0"
     app.kubernetes.io/managed-by: Helm
----
-# Source: query-exporter/templates/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: default-query-exporter-cm
-  labels:
-    helm.sh/chart: query-exporter-1.0.0
-    app.kubernetes.io/name: query-exporter
-    app.kubernetes.io/instance: default
-    app: default
-    release: default
-    app.kubernetes.io/version: "2.8.3"
-    app.kubernetes.io/managed-by: Helm
-data:
-  config.yaml: |-
-    databases:
-      db1:
-        dsn: sqlite://
-        connect-sql:
-          - PRAGMA application_id = 123
-          - PRAGMA auto_vacuum = 1
-        labels:
-          region: us1
-          app: app1
-    
-    metrics:
-      metric1:
-        type: gauge
-        description: A sample gauge
-    
-    queries:
-      query1:
-        interval: 5
-        databases: [db1]
-        metrics: [metric1]
-        sql: SELECT random() / 1000000000000000 AS metric1
 ---
 # Source: query-exporter/templates/service.yaml
 apiVersion: v1
@@ -56,12 +19,12 @@ kind: Service
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-1.0.0
+    helm.sh/chart: query-exporter-2.0.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/version: "2.9.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -82,12 +45,12 @@ kind: Deployment
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-1.0.0
+    helm.sh/chart: query-exporter-2.0.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.8.3"
+    app.kubernetes.io/version: "2.9.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -106,12 +69,11 @@ spec:
         release: default
     spec:
       serviceAccountName: default-query-exporter
-      securityContext:
-        {}
+      securityContext: {}
       volumes:
-        - name: cm-query-exporter-volume
-          configMap:
-            name: default-query-exporter-cm
+        - name: config-from-secret-volume
+          secret:
+            secretName: query-exporter-config-secret
             defaultMode: 420
       containers:
         - name: query-exporter
@@ -119,12 +81,13 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
-          image: "adonato/query-exporter:2.8.3"
+          image: "adonato/query-exporter:2.9.0"
           imagePullPolicy: IfNotPresent
           volumeMounts:
-            - name: cm-query-exporter-volume
+            - name: config-from-secret-volume
               mountPath: /config.yaml
               subPath: config.yaml
+              readOnly: true
           ports:
             - containerPort: 9560
               protocol: TCP
@@ -151,7 +114,7 @@ metadata:
   name: default-query-exporter
   labels:
     app: query-exporter
-    chart: query-exporter-1.0.0
+    chart: query-exporter-2.0.1
     heritage: Helm
 spec:
   selector:
