@@ -11,26 +11,34 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/helm/pkg/chartutil"
+	"k8s.io/helm/pkg/proto/hapi/chart"
 	"path/filepath"
 	"testing"
 )
 
 var (
-	helmChartPath  = "../query-exporter"
-	releaseName    = "query-exporter"
-	kubectlContext = "docker-desktop"
-	namespaceName  = "terratest"
+	helmChartPath   = "../query-exporter"
+	releaseName     = "query-exporter"
+	kubectlContext  = "docker-desktop"
+	namespaceName   = "terratest"
+	chartYamlFile   *chart.Metadata
+	imageRepository = "adonato/query-exporter"
 )
 
-func TestRenderTemplatesWithDefaultValuesShouldReturnNoError(t *testing.T) {
-	var err error
-	var templates []string
+func init() {
+	chartfile, err := chartutil.LoadChartfile(filepath.Join(helmChartPath, "Chart.yaml"))
+	if err != nil {
+		return
+	}
+	chartYamlFile = chartfile
+}
 
-	require.NoError(t, err)
+func TestRenderTemplatesWithDefaultValuesShouldReturnNoError(t *testing.T) {
+	var templates []string
 
 	templates = []string{
 		"templates/deployment.yaml",
-		"templates/configmap.yaml",
 		"templates/service.yaml",
 		"templates/serviceaccount.yaml",
 		"templates/servicemonitor.yaml",
@@ -44,12 +52,10 @@ func TestRenderTemplatesWithDefaultValuesShouldReturnNoError(t *testing.T) {
 }
 
 func TestDeployment(t *testing.T) {
-
-	// Set up the args. For this test, we will set the following input values:
 	options := &helm.Options{
 		SetValues: map[string]string{
-			"image.repository": "adonato/query-exporter",
-			"image.tag":        "latest",
+			"image.repository": imageRepository,
+			"image.tag":        chartYamlFile.AppVersion,
 		},
 	}
 
@@ -62,7 +68,7 @@ func TestDeployment(t *testing.T) {
 	var deployment appsv1.Deployment
 	helm.UnmarshalK8SYaml(t, output, &deployment)
 
-	expectedContainerImage := "adonato/query-exporter:latest"
+	expectedContainerImage := fmt.Sprintf("%s:%s", imageRepository, chartYamlFile.AppVersion)
 	deploymentContainers := deployment.Spec.Template.Spec.Containers
 	require.Equal(t, len(deploymentContainers), 1)
 	require.Equal(t, deploymentContainers[0].Image, expectedContainerImage)
@@ -72,7 +78,7 @@ func TestServiceMonitorEnabledFalseDoesNotCreateServiceMonitor(t *testing.T) {
 	t.Parallel()
 
 	options := &helm.Options{
-		ValuesFiles: []string{filepath.Join("..", "..", "charts", "query-exporter", "values.yaml")},
+		ValuesFiles: []string{filepath.Join(helmChartPath, "values.yaml")},
 		SetValues:   map[string]string{"prometheus.monitor.enabled": "false"},
 	}
 	_, err := helm.RenderTemplateE(t, options, helmChartPath, "servicemonitor", []string{"templates/servicemonitor.yaml"})
@@ -84,7 +90,7 @@ func TestServiceMonitorEnabledCreatesServiceMonitor(t *testing.T) {
 
 	options := &helm.Options{
 		ValuesFiles: []string{
-			filepath.Join("..", "..", "charts", "query-exporter", "values.yaml"),
+			filepath.Join(helmChartPath, "values.yaml"),
 		},
 	}
 	out := helm.RenderTemplate(t, options, helmChartPath, "servicemonitor", []string{"templates/servicemonitor.yaml"})
@@ -100,6 +106,27 @@ func TestServiceMonitorEnabledCreatesServiceMonitor(t *testing.T) {
 	assert.Equal(t, "/metrics", defaultEndpoint.Path)
 	//assert.Equal(t, "http", defaultEndpoint.Port)
 	//assert.Equal(t, "http", defaultEndpoint.Scheme)
+}
+
+func TestServiceCreatedByDefault(t *testing.T) {
+	t.Parallel()
+	options := &helm.Options{
+		ValuesFiles: []string{
+			filepath.Join(helmChartPath, "values.yaml"),
+		},
+	}
+
+	rendered, err := helm.RenderTemplateE(t, options, helmChartPath, releaseName, []string{"templates/service.yaml"})
+	require.NoError(t, err)
+	var service corev1.Service
+	helm.UnmarshalK8SYaml(t, rendered, &service)
+
+	ports := service.Spec.Ports[0]
+	require.Equal(t, ports.Port, int32(9560))
+	require.Equal(t, ports.TargetPort, intstr.IntOrString{IntVal: 9560})
+	require.Equal(t, ports.Protocol, corev1.Protocol("TCP"))
+	require.Equal(t, ports.Name, "http")
+	require.Equal(t, service.Spec.Type, corev1.ServiceType("ClusterIP"))
 }
 
 func TestIngressEnabledCreatesIngress(t *testing.T) {
@@ -135,43 +162,13 @@ func TestIngressEnabledCreatesIngress(t *testing.T) {
 func TestDefaultValuesIngressNotEnabledDoesNotCreateIngress(t *testing.T) {
 	t.Parallel()
 
-	helmChartPath, err := filepath.Abs(filepath.Join("..", "..", "charts", "query-exporter"))
-	require.NoError(t, err)
-
 	options := &helm.Options{
 		ValuesFiles: []string{
 			filepath.Join(helmChartPath, "values.yaml"),
 		},
 	}
 
-	_, err = helm.RenderTemplateE(t, options, helmChartPath, "ingress", []string{"templates/ingress.yaml"})
+	_, err := helm.RenderTemplateE(t, options, helmChartPath, "ingress", []string{"templates/ingress.yaml"})
 	expected := "error while running command: exit status 1; Error: could not find template templates/ingress.yaml in chart"
 	require.EqualError(t, err, expected)
-
-}
-
-func TestServiceCreatedByDefault(t *testing.T) {
-	t.Parallel()
-
-	helmChartPath, err := filepath.Abs(filepath.Join("..", "..", "charts", "query-exporter"))
-	require.NoError(t, err)
-
-	releaseName := "query-exporter"
-
-	options := &helm.Options{
-		ValuesFiles: []string{
-			filepath.Join(helmChartPath, "values.yaml"),
-		},
-	}
-
-	rendered, err := helm.RenderTemplateE(t, options, helmChartPath, releaseName, []string{"templates/service.yaml"})
-	var service corev1.Service
-	helm.UnmarshalK8SYaml(t, rendered, &service)
-
-	ports := service.Spec.Ports[0]
-	require.Equal(t, ports.Port, int32(9560))
-	require.Equal(t, ports.TargetPort, intstr.IntOrString{IntVal: 9560})
-	require.Equal(t, ports.Protocol, corev1.Protocol("TCP"))
-	require.Equal(t, ports.Name, "http")
-	require.Equal(t, service.Spec.Type, corev1.ServiceType("ClusterIP"))
 }

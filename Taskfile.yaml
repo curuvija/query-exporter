@@ -20,7 +20,7 @@ tasks:
     cmds:
       - cd tests && go test ./...
   tests.integration:
-    desc: test helm chart
+    desc: test helm chart with integrations tests
     cmds:
       - cd tests && go test --tags=integration
   package:
@@ -39,6 +39,7 @@ tasks:
     desc: release helm chart manually
     cmds:
       - task: lint
+      - task: templates
       - task: docs
       - task: test
       - task: package
