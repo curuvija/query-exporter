@@ -6,6 +6,27 @@ env:
   GITHUB_REPO: query-exporter
 
 tasks:
+  kube-score:
+    desc: Run kube-score on rendered files
+    cmds:
+      - helm template query-exporter/ | kube-score score -
+  kubeconform:
+    desc: run kubeconform on rendered templates
+    cmds:
+      - helm template query-exporter/ | kubeconform -ignore-missing-schemas -summary -
+  kubeval:
+    desc: run kubeval on rendered templates
+    cmds:
+      - helm template query-exporter/ | kubeval -
+  datree:
+    desc: run datree
+    cmds:
+      - datree config set offline local
+      - helm template query-exporter/ | datree test -
+  polaris:
+    desc: run polaris agains helm chart
+    cmds:
+      - polaris audit --helm-chart query-exporter --helm-values query-exporter\values.yaml --only-show-failed-tests --format=pretty
   lint:
     desc: run linters on Helm chart
     cmds:
@@ -35,6 +56,7 @@ tasks:
       - git checkout master
       - cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GITHUB_TOKEN --release-notes-file CHANGELOG.md
       - cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $GITHUB_TOKEN --release-notes-file CHANGELOG.md
+      - rm .cr-release-packages/*
   release:
     desc: release helm chart manually
     cmds:

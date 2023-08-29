@@ -1,6 +1,0 @@
-
-serviceAccount:
-  create: true
-  name: "starboard"
-
-targetNamespaces: "monitoring"

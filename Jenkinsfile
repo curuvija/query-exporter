@@ -9,11 +9,7 @@ pipeline {
         GITHUB_TOKEN = credentials('github_curuvija_jcasc')
     }
 
-
     stages {
-        // TODO: kube-linter -> https://github.com/stackrox/kube-linter (kube-score, kubeconform, kubeeval, datree, kics -> https://kics.io/index.html
-        // TODO: check also https://analysis-tools.dev/tag/kubernetes
-        // TODO: kube-hunter -> https://aquasecurity.github.io/kube-hunter/
         stage('Lint') {
             steps {
                 container('helm') {
@@ -27,7 +23,6 @@ pipeline {
                 sh 'echo something'
             }
         }
-        // TODO: Terratest (you need to install prometheus crds)
         stage('Test') {
             steps {
                 container('helm') {
@@ -43,6 +38,11 @@ pipeline {
             }
         }
         stage('Dry run') {
+            steps {
+                sh 'echo something'
+            }
+        }
+        stage('Static code analysis') {
             steps {
                 sh 'echo something'
             }
@@ -77,11 +77,13 @@ pipeline {
             }
             steps {
                 container('helm') {
-                    sh 'cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token ${GITHUB_TOKEN_PSW}'
+                    sh 'cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token ${GITHUB_TOKEN_PSW} --release-notes-file CHANGELOG.md'
+                    sh 'cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token ${GITHUB_TOKEN} --release-notes-file CHANGELOG.md'
                 }
             }
         }
-        stage('Publish') {
+        // TODO: check https://itnext.io/jenkins-tutorial-part-10-work-with-git-in-pipeline-b5e42f6d124b
+        stage('Checkout helm charts repo') {
             when {
                 allOf {
                     expression {
@@ -90,10 +92,17 @@ pipeline {
                 }
             }
             steps {
-                sh 'echo something'
+                dir("helm-charts-repo") {
+                    git(
+                        url: "https://github.com/curuvija/helm-charts.git",
+                        branch: "gh-pages",
+                        changelog: true,
+                        poll: true
+                    )
+                }
             }
         }
-        stage('Tag') {
+        stage('Generate helm-charts index') {
             when {
                 allOf {
                     expression {
@@ -102,7 +111,22 @@ pipeline {
                 }
             }
             steps {
-                sh 'echo something'
+                sh 'cr index --index-path index.yaml --package-path .cr-release-packages/ --owner curuvija --git-repo helm-charts --pr'
+                //sh 'cr index --index-path index.yaml --package-path .cr-release-packages/ --owner curuvija --git-repo helm-charts --push'
+            }
+        }
+        stage('Publish index') {
+            when {
+                allOf {
+                    expression {
+                        env.BRANCH_NAME == 'master'
+                    }
+                }
+            }
+            steps {
+                withCredentials([gitUsernamePassword(credentialsId: 'github_curuvija_jcasc', gitToolName: 'Default')]) {
+                    //sh "git push -u origin gh-pages"
+                }
             }
         }
     }
