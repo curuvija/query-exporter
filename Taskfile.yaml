@@ -6,6 +6,10 @@ env:
   GITHUB_REPO: query-exporter
 
 tasks:
+  kube-linter:
+    desc: run kube-linter
+    cmds:
+      - helm template query-exporter/ | kube-linter lint -
   kube-score:
     desc: Run kube-score on rendered files
     cmds:
@@ -26,12 +30,25 @@ tasks:
   polaris:
     desc: run polaris agains helm chart
     cmds:
-      - polaris audit --helm-chart query-exporter --helm-values query-exporter\values.yaml --only-show-failed-tests --format=pretty
+      - polaris audit --helm-chart query-exporter --helm-values query-exporter/values.yaml --only-show-failed-tests --format=pretty
+  trivy:
+    desc: run trivy against helm chart
+    cmds:
+      - trivy config query-exporter/
   lint:
     desc: run linters on Helm chart
     cmds:
       - helm lint $CHART_PATH
       - helm template $CHART_PATH | kubeval
+  kics:
+    desc: run kics on helm chart
+    cmds:
+      - docker pull checkmarx/kics:latest
+      - docker run -t -v .:/path checkmarx/kics scan -p /path/query-exporter
+  checkov:
+    desc: run checkouv on helm chart
+    cmds:
+      - docker run -t -v .:/path bridgecrew/checkov -d /path/query-exporter
   docs:
     desc: renders docs
     cmds:

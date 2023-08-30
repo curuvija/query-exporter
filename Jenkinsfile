@@ -78,7 +78,7 @@ pipeline {
             steps {
                 container('helm') {
                     sh 'cr upload -o curuvija --git-repo query-exporter --package-path .cr-release-packages/ --token ${GITHUB_TOKEN_PSW} --release-notes-file CHANGELOG.md'
-                    sh 'cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token ${GITHUB_TOKEN} --release-notes-file CHANGELOG.md'
+                    sh 'cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token ${GITHUB_TOKEN_PSW} --release-notes-file CHANGELOG.md'
                 }
             }
         }
