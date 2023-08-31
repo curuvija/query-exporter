@@ -1,4 +1,5 @@
 pipeline {
+    // TODO: check running pipeline in docker https://docs.kics.io/latest/integrations_jenkins/
     agent { label 'k8s-helm-pod' }
 
     options{
