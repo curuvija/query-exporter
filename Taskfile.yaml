@@ -45,6 +45,7 @@ tasks:
     cmds:
       - docker pull checkmarx/kics:latest
       - docker run -t -v .:/path checkmarx/kics scan -p /path/query-exporter
+  # TODO: check https://github.com/bridgecrewio/checkov/blob/main/docs/7.Scan%20Examples/Helm.md
   checkov:
     desc: run checkouv on helm chart
     cmds:
