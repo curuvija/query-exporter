@@ -1,0 +1,28 @@
+name: Release Helm chart
+run-name: ${{ github.actor }} is testing out GitHub Actions
+
+# kind cluster create https://github.com/marketplace/actions/kind-cluster and https://github.com/marketplace/actions/helm-chart-testing
+# chart-releaser-action https://github.com/helm/chart-releaser-action
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      # - name: Run chart-releaser
+      # uses: helm/chart-releaser-action@v1.6.0
+      # env:
+      #   CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
