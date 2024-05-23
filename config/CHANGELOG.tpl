@@ -1,4 +1,4 @@
-# Docker Build Tools Changelog
+# Query Exporter Changelog
 
 {{#releases}}
 ## [{{name}}](https://github.com/curuvija/query-exporter/releases/{{name}}) ({{date}})
