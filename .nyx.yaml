@@ -1,0 +1,36 @@
+# find example here https://github.com/mooltiverse/nyx/blob/main/.nyx.yaml
+# find extended examples here https://mooltiverse.github.io/nyx/example/user/extended-configuration-example/#yaml
+preset: "simple"
+commitMessageConventions:
+  enabled:
+    - conventionalCommits
+services:
+  github:
+    type: "GITHUB" # can be github too
+    options:
+      AUTHENTICATION_TOKEN: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}" # replace this with gitlab token
+      REPOSITORY_NAME: "query-exporter"
+      REPOSITORY_OWNER: "curuvija"
+changelog:
+  #append: "head"
+  path: "CHANGELOG.md"
+  template: "config/CHANGELOG.tpl"
+  sections:
+  "Added": "^feat$"
+  "Fixed": "^fix$"
+  substitutions:
+    "(?m)#([0-9]+)(?s)": "[#%s](https://github.com/curuvija/query-exporter/issues/%s)"
+releaseTypes:
+  enabled:
+    - mainline
+    - fix
+    - hotfix
+    - feature
+    - release
+    - internal
+  publicationServices:
+    - gitlab
+  items:
+    mainline:
+      description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
+      gitCommit: true

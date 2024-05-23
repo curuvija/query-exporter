@@ -52,3 +52,18 @@ tasks:
     desc: renders templates into folder
     cmds:
       - helm template default query-exporter/ > tests/rendered_templates/default.yaml
+  infer:
+    desc: nyx summary
+    cmds:
+      - nyx --summary infer
+      - nyx infer --summary-file=build/nyx_summary
+      #- docker run -it --rm -v .:/project mooltiverse/nyx:latest --summary infer
+  make:
+    desc: make nyx
+    cmds:
+      - nyx make
+  state:
+    desc: build nyx state file
+    cmds:
+      - nyx --state-file=build/nyx-state.json infer
+

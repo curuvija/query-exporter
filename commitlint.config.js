@@ -4,5 +4,6 @@ module.exports = {
     ],
     rules: {
         "type-enum": [2, "always", ["build", "chore", "ci", "docs", "feat", "fix", "refactor", "revert", "style", "test"]],
+        "scope-enum": [2, "always", ["chart", "test"]]
     }
 }
