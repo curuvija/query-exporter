@@ -6,6 +6,10 @@ env:
   GITHUB_REPO: query-exporter
 
 tasks:
+  commitlint:
+    desc: run commitlint
+    cmds:
+      - npx commitlint --from HEAD~1 --to HEAD --verbose
   lint:
     desc: run linters on Helm chart
     cmds:
@@ -29,6 +33,8 @@ tasks:
       - rm -rf .cr-release-packages/
       - git checkout master
       - cr package $CHART_PATH
+      #- helm package query-exporter/ --destination build/
+      # TODO: - cr package $CHART_PATH --sign
   upload:
     desc: upload packaged helm chart to github repository releases page
     cmds:
@@ -48,3 +54,30 @@ tasks:
     desc: renders templates into folder
     cmds:
       - helm template default query-exporter/ > tests/rendered_templates/default.yaml
+  infer:
+    desc: nyx summary
+    cmds:
+      - nyx --summary infer
+      - nyx infer --summary-file=build/nyx_summary
+      #- docker run -it --rm -v .:/project mooltiverse/nyx:latest --summary infer
+  mark:
+    desc: mark nyx
+    cmds:
+      - nyx mark
+  make:
+    desc: make nyx
+    cmds:
+      - nyx make
+      - task: appVersion
+  publish:
+    desc: publish nyx
+    cmds:
+      - nyx publish
+  state:
+    desc: build nyx state file
+    cmds:
+      - nyx --state-file=build/nyx-state.json infer
+  appVersion:
+    desc: replaces appVersion in Helm chart
+    cmds:
+      - export APP_VERSION=$(cat query-exporter/values.yaml | yq .image.tag) && yq e -i '.appVersion = env(APP_VERSION)' query-exporter/Chart.yaml

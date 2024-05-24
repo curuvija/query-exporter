@@ -1,0 +1,59 @@
+# find example here https://github.com/mooltiverse/nyx/blob/main/.nyx.yaml
+# find extended examples here https://mooltiverse.github.io/nyx/example/user/extended-configuration-example/#yaml
+preset: "extended"
+scheme: "SEMVER"
+releasePrefix: "query-exporter-"
+commitMessageConventions:
+  enabled:
+    - conventionalCommits
+services:
+  github:
+    type: "GITHUB" # can be github too
+    options:
+      AUTHENTICATION_TOKEN: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}" # replace this with gitlab token
+      REPOSITORY_NAME: "query-exporter"
+      REPOSITORY_OWNER: "curuvija"
+changelog:
+  #append: "head"
+  path: "build/CHANGELOG.md"
+  template: "config/CHANGELOG.tpl"
+  sections:
+  "Added": "^feat$"
+  "Fixed": "^fix$"
+  substitutions:
+    "(?m)#([0-9]+)(?s)": "[#%s](https://github.com/curuvija/query-exporter/issues/%s)"
+releaseTypes:
+  enabled:
+    - mainline
+  publicationServices:
+    - github
+  items:
+    mainline:
+      description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
+      gitCommit: true
+      #publishDraft: true
+      #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
+      gitPush: "true"
+      gitTag: "true"
+      #matchBranches: "^(master)$"
+      # matchEnvironmentVariables: 
+      #   CI: "^true$"                 # only match this release type when running on CI servers
+      #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
+      publish: "true"
+releaseAssets:
+  chart:
+    description: "Query Exporter Helm Chart version {{version}}"
+    fileName: "{{version}}.tgz"
+    path: "build/{{version}}.tgz"
+    type: "application/octet-stream"
+git: 
+  remotes:
+    origin:
+      user: "curuvija"
+      password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
+dryRun: false # use this together with verbosity and check logs in terminal
+verbosity: "WARNING" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
+substitutions:
+  enabled:
+    - helm_version # sets the version in Chart.yaml
+stateFile: "build/.nyx-state.json"

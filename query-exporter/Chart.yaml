@@ -1,8 +1,8 @@
 apiVersion: v2
 name: query-exporter
 type: application
-version: 2.0.1
-appVersion: "2.9.0"
+version: "query-exporter-2.1.0"
+appVersion: "2.10.0"
 description: A Helm chart for query-exporter (export Prometheus metrics from SQL queries)
 maintainers:
   - name: 'Milos Curuvija'
@@ -15,5 +15,5 @@ annotations:
   artifacthub.io/changes: |
     - notes fixed wrong port and message
   artifacthub.io/links: |
-      - name: support
-        url: https://github.com/curuvija/query-exporter/issues
+    - name: support
+      url: https://github.com/curuvija/query-exporter/issues
