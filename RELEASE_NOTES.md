@@ -1,5 +1,12 @@
 # Query Exporter Release Notes
 
+## [2.0.1](https://github.com/curuvija/query-exporter/releases/2.0.1) (2024-05-24)
+
+No changes.
+
+Also check out the [release notes](https://github.com/curuvija/query-exporter/blob/master/RELEASE_NOTES.md#) for this release.
+# Query Exporter Release Notes
+
 ## [2.1.0](https://github.com/curuvija/query-exporter/releases/2.1.0) (2024-05-24)
 
 ### feat

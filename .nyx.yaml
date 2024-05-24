@@ -44,3 +44,8 @@ releaseAssets:
     fileName: "something.txt"
     path: "build"
     type: "application/octet-stream"
+  chart:
+    description: "Query Exporter Helm Chart"
+    fileName: "build/query-exporter-2.1.0.tgz" # TODO: user template to provide version from the tag
+    path: "build"
+    type: "application/octet-stream"
