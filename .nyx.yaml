@@ -23,18 +23,21 @@ changelog:
 releaseTypes:
   enabled:
     - mainline
-    - fix
-    - hotfix
-    - feature
-    - release
-    - internal
   publicationServices:
     - gitlab
   items:
     mainline:
       description: "{{#fileContent}}RELEASE_NOTES.md{{/fileContent}}"
       gitCommit: true
-      publishDraft: true
+      #publishDraft: true
+      #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
+      gitPush: "true"
+      gitTag: "true"
+      #matchBranches: "^(master|main|feature/add_github_actions)$"
+      # matchEnvironmentVariables: 
+      #   CI: "^true$"                 # only match this release type when running on CI servers
+      #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
+      publish: "true"
 releaseAssets:
   something:
     description: "something"
