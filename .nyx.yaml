@@ -1,0 +1,46 @@
+# find example here https://github.com/mooltiverse/nyx/blob/main/.nyx.yaml
+# find extended examples here https://mooltiverse.github.io/nyx/example/user/extended-configuration-example/#yaml
+preset: "simple"
+commitMessageConventions:
+  enabled:
+    - conventionalCommits
+services:
+  github:
+    type: "GITHUB" # can be github too
+    options:
+      AUTHENTICATION_TOKEN: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}" # replace this with gitlab token
+      REPOSITORY_NAME: "query-exporter"
+      REPOSITORY_OWNER: "curuvija"
+changelog:
+  append: "head"
+  path: "RELEASE_NOTES.md"
+  template: "config/RELEASE_NOTES.tpl"
+  sections:
+  "Added": "^feat$"
+  "Fixed": "^fix$"
+  substitutions:
+    "(?m)#([0-9]+)(?s)": "[#%s](https://github.com/curuvija/query-exporter/issues/%s)"
+releaseTypes:
+  enabled:
+    - mainline
+  publicationServices:
+    - gitlab
+  items:
+    mainline:
+      description: "{{#fileContent}}RELEASE_NOTES.md{{/fileContent}}"
+      gitCommit: true
+      #publishDraft: true
+      #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
+      gitPush: "true"
+      gitTag: "true"
+      #matchBranches: "^(master|main|feature/add_github_actions)$"
+      # matchEnvironmentVariables: 
+      #   CI: "^true$"                 # only match this release type when running on CI servers
+      #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
+      publish: "true"
+releaseAssets:
+  something:
+    description: "something"
+    fileName: "something.txt"
+    path: "build"
+    type: "application/octet-stream"

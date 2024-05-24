@@ -6,6 +6,10 @@ env:
   GITHUB_REPO: query-exporter
 
 tasks:
+  commitlint:
+    desc: run commitlint
+    cmds:
+      - npx commitlint --from HEAD~1 --to HEAD --verbose
   lint:
     desc: run linters on Helm chart
     cmds:
@@ -48,3 +52,22 @@ tasks:
     desc: renders templates into folder
     cmds:
       - helm template default query-exporter/ > tests/rendered_templates/default.yaml
+  infer:
+    desc: nyx summary
+    cmds:
+      - nyx --summary infer
+      - nyx infer --summary-file=build/nyx_summary
+      #- docker run -it --rm -v .:/project mooltiverse/nyx:latest --summary infer
+  make:
+    desc: make nyx
+    cmds:
+      - nyx make
+  publish:
+    desc: publish nyx
+    cmds:
+      - nyx publish
+  state:
+    desc: build nyx state file
+    cmds:
+      - nyx --state-file=build/nyx-state.json infer
+
