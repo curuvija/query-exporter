@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
@@ -35,6 +37,8 @@ jobs:
       # Run other tasks here....
       - name: Run nyx Publish
         uses: mooltiverse/nyx-github-action@main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           command: publish
           resume: true

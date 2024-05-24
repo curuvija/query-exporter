@@ -12,9 +12,9 @@ services:
       REPOSITORY_NAME: "query-exporter"
       REPOSITORY_OWNER: "curuvija"
 changelog:
-  #append: "head"
-  path: "CHANGELOG.md"
-  template: "config/CHANGELOG.tpl"
+  append: "head"
+  path: "RELEASE_NOTES.md"
+  template: "config/RELEASE_NOTES.tpl"
   sections:
   "Added": "^feat$"
   "Fixed": "^fix$"
@@ -32,5 +32,12 @@ releaseTypes:
     - gitlab
   items:
     mainline:
-      description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
+      description: "{{#fileContent}}RELEASE_NOTES.md{{/fileContent}}"
       gitCommit: true
+      publishDraft: true
+releaseAssets:
+  something:
+    description: "something"
+    fileName: "something.txt"
+    path: "build"
+    type: "application/octet-stream"

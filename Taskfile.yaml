@@ -62,6 +62,10 @@ tasks:
     desc: make nyx
     cmds:
       - nyx make
+  publish:
+    desc: publish nyx
+    cmds:
+      - nyx publish
   state:
     desc: build nyx state file
     cmds:
