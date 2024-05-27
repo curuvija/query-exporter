@@ -23,6 +23,7 @@ changelog:
 releaseTypes:
   enabled:
     - mainline
+    - release
   publicationServices:
     - gitlab
   items:
@@ -39,11 +40,6 @@ releaseTypes:
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
       publish: "true"
 releaseAssets:
-  something:
-    description: "something"
-    fileName: "something.txt"
-    path: "build"
-    type: "application/octet-stream"
   chart:
     description: "Query Exporter Helm Chart"
     fileName: "build/query-exporter-2.1.0.tgz" # TODO: user template to provide version from the tag
