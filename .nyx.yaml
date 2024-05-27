@@ -23,9 +23,8 @@ changelog:
 releaseTypes:
   enabled:
     - mainline
-    - release
   publicationServices:
-    - gitlab
+    - github
   items:
     mainline:
       description: "{{#fileContent}}RELEASE_NOTES.md{{/fileContent}}"
@@ -42,6 +41,13 @@ releaseTypes:
 releaseAssets:
   chart:
     description: "Query Exporter Helm Chart"
-    fileName: "build/query-exporter-2.1.0.tgz" # TODO: user template to provide version from the tag
+    fileName: "query-exporter-2.1.0.tgz" # TODO: user template to provide version from the tag
     path: "build"
     type: "application/octet-stream"
+git: 
+  remotes:
+    origin:
+      user: "curuvija"
+      password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
+dryRun: false # use this together with verbosity and check logs in terminal
+verbosity: "INFO" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
