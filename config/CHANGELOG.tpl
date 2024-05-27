@@ -21,5 +21,3 @@ No changes.
 {{^releases}}
 No releases.
 {{/releases}}
-
-Also check out the [release notes](https://github.com/curuvija/query-exporter/blob/master/RELEASE_NOTES.md#{{name}}) for this release.

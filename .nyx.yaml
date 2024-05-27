@@ -12,9 +12,9 @@ services:
       REPOSITORY_NAME: "query-exporter"
       REPOSITORY_OWNER: "curuvija"
 changelog:
-  append: "head"
-  path: "RELEASE_NOTES.md"
-  template: "config/RELEASE_NOTES.tpl"
+  #append: "head"
+  path: "build/CHANGELOG.md"
+  template: "config/CHANGELOG.tpl"
   sections:
   "Added": "^feat$"
   "Fixed": "^fix$"
@@ -27,13 +27,13 @@ releaseTypes:
     - github
   items:
     mainline:
-      description: "{{#fileContent}}RELEASE_NOTES.md{{/fileContent}}"
+      description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
       gitCommit: true
       #publishDraft: true
       #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
       gitPush: "true"
       gitTag: "true"
-      #matchBranches: "^(master|main|feature/add_github_actions)$"
+      #matchBranches: "^(master)$"
       # matchEnvironmentVariables: 
       #   CI: "^true$"                 # only match this release type when running on CI servers
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
@@ -41,7 +41,7 @@ releaseTypes:
 releaseAssets:
   chart:
     description: "Query Exporter Helm Chart"
-    fileName: "query-exporter-2.1.0.tgz" # TODO: user template to provide version from the tag
+    fileName: "query-exporter-{{version}}.tgz"
     path: "build"
     type: "application/octet-stream"
 git: 
