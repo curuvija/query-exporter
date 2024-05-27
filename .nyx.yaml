@@ -40,9 +40,9 @@ releaseTypes:
       publish: "true"
 releaseAssets:
   chart:
-    description: "Query Exporter Helm Chart"
+    description: "Query Exporter Helm Chart version {{version}}"
     fileName: "query-exporter-{{version}}.tgz"
-    path: "build"
+    path: "build/query-exporter-{{version}}.tgz"
     type: "application/octet-stream"
 git: 
   remotes:
