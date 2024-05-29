@@ -5,12 +5,12 @@ kind: ServiceAccount
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.0.1
+    helm.sh/chart: query-exporter-2.1.0
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/version: "2.10.0"
     app.kubernetes.io/managed-by: Helm
 ---
 # Source: query-exporter/templates/service.yaml
@@ -19,12 +19,12 @@ kind: Service
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.0.1
+    helm.sh/chart: query-exporter-2.1.0
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/version: "2.10.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -45,12 +45,12 @@ kind: Deployment
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.0.1
+    helm.sh/chart: query-exporter-2.1.0
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
     release: default
-    app.kubernetes.io/version: "2.9.0"
+    app.kubernetes.io/version: "2.10.0"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -81,7 +81,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
-          image: "adonato/query-exporter:2.9.0"
+          image: "adonato/query-exporter:2.10.0"
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: config-from-secret-volume
@@ -114,7 +114,7 @@ metadata:
   name: default-query-exporter
   labels:
     app: query-exporter
-    chart: query-exporter-2.0.1
+    chart: query-exporter-2.1.0
     heritage: Helm
 spec:
   selector:

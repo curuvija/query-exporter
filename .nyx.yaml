@@ -33,7 +33,9 @@ releaseTypes:
       #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
       gitPush: "true"
       gitTag: "true"
-      #matchBranches: "^(master)$"
+      #gitTagForce: "true"
+      #gitPushForce: "true"
+      matchBranches: "^(master)$" # publish only from master branch
       # matchEnvironmentVariables: 
       #   CI: "^true$"                 # only match this release type when running on CI servers
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean

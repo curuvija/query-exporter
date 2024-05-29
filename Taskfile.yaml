@@ -2,7 +2,7 @@ version: '3'
 
 env:
   CHART_NAME: query-exporter
-  CHART_PATH: build
+  CHART_PATH: query-exporter
   GITHUB_REPO: query-exporter
 
 tasks:
@@ -19,11 +19,11 @@ tasks:
     desc: renders docs
     cmds:
       - helm-docs $CHART_PATH && cp $CHART_PATH/README.md .
-  tests:
+  test:
     desc: test helm chart
     cmds:
       - cd tests && go test ./...
-  tests.integration:
+  test.integration:
     desc: test helm chart with integrations tests
     cmds:
       - cd tests && go test --tags=integration
@@ -48,7 +48,12 @@ tasks:
       - task: templates
       - task: docs
       - task: test
+      - task: infer
+      - task: state
+      - task: make
       - task: package
+      - task: mark
+      - task: publish
       - task: upload
   templates:
     desc: renders templates into folder
