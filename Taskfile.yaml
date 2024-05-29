@@ -2,7 +2,7 @@ version: '3'
 
 env:
   CHART_NAME: query-exporter
-  CHART_PATH: query-exporter
+  CHART_PATH: build
   GITHUB_REPO: query-exporter
 
 tasks:
@@ -30,11 +30,10 @@ tasks:
   package:
     desc: package helm chart
     cmds:
-      - rm -rf .cr-release-packages/
-      - git checkout master
-      - cr package
+      #- rm -rf .cr-release-packages/
+      #- git checkout master
       #- cr package $CHART_PATH
-      #- helm package query-exporter/ --destination build/
+      - helm package query-exporter/ --destination build/
       # TODO: - cr package $CHART_PATH --sign
   upload:
     desc: upload packaged helm chart to github repository releases page

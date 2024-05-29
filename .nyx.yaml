@@ -1,8 +1,6 @@
 # find example here https://github.com/mooltiverse/nyx/blob/main/.nyx.yaml
 # find extended examples here https://mooltiverse.github.io/nyx/example/user/extended-configuration-example/#yaml
 preset: "extended"
-scheme: "SEMVER"
-releasePrefix: "query-exporter-"
 commitMessageConventions:
   enabled:
     - conventionalCommits
@@ -43,8 +41,8 @@ releaseTypes:
 releaseAssets:
   chart:
     description: "Query Exporter Helm Chart version {{version}}"
-    fileName: "{{version}}.tgz"
-    path: "build/{{version}}.tgz"
+    fileName: "query-exporter-{{version}}.tgz"
+    path: "build/query-exporter-{{version}}.tgz"
     type: "application/octet-stream"
 git: 
   remotes:
