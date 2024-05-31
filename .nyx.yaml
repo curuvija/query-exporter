@@ -23,23 +23,39 @@ changelog:
 releaseTypes:
   enabled:
     - mainline
+    - develop
   publicationServices:
     - github
   items:
     mainline:
       description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
       gitCommit: true
-      publishDraft: true
+      #publishDraft: true
       #filterTags: "^({{configuration.releasePrefix}})?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)$"
       gitPush: "true"
       gitTag: "true"
       #gitTagForce: "true"
       #gitPushForce: "true"
-      #matchBranches: "^(master)$" # publish only from master branch
+      matchBranches: "^(master)$" # publish only from master branch
       # matchEnvironmentVariables: 
       #   CI: "^true$"                 # only match this release type when running on CI servers
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
-      #publish: "true"
+      publish: "true"
+    develop: 
+      collapseVersions: true
+      collapsedVersionQualifier: ""
+      description: "Develop release "
+      #filterTags: "^()?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)(-(develop|development|integration|latest)(\\.([0-9]\\d*))?)$"
+      gitCommit: "false"
+      gitPush: "true"
+      gitTag: "true"
+      gitTagNames:
+        - ""
+      #matchBranches: "^(develop|development|integration|latest)$"
+      #matchWorkspaceStatus: "CLEAN"
+      publish: "true"
+      publishPreRelease: "true"
+      versionRangeFromBranchName: false
 releaseAssets:
   chart:
     description: "Query Exporter Helm Chart version {{version}}"
@@ -56,8 +72,8 @@ git:
     #   user: "curuvija"
     #   password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
 
-dryRun: false # use this together with verbosity and check logs in terminal
-verbosity: "WARNING" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
+dryRun: true # use this together with verbosity and check logs in terminal
+verbosity: "DEBUG" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
 substitutions:
   enabled:
     - helm_version # sets the version in Chart.yaml
