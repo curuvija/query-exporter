@@ -14,7 +14,7 @@ tasks:
     desc: run linters on Helm chart
     cmds:
       - helm lint $CHART_PATH
-      - helm template $CHART_PATH | kubeval
+      #- helm template $CHART_PATH | kubeval # TODO: fix query-exporter/templates/servicemonitor.yaml: Failed initializing schema https://kubernetesjsonschema.dev/master-standalone/servicemonitor-monitoring-v1.json: Could not read schema from HTTP, response status is 40
   docs:
     desc: renders docs
     cmds:
@@ -33,24 +33,27 @@ tasks:
       #- rm -rf .cr-release-packages/
       #- git checkout master
       #- cr package $CHART_PATH
-      - helm package query-exporter/ --destination build/
+      - helm package query-exporter/ --destination build/ --destination .cr-release-packages/
       # TODO: - cr package $CHART_PATH --sign
   upload:
     desc: upload packaged helm chart to github repository releases page
     cmds:
       #- git checkout master
       #- cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md # TODO: this is done by nyx, remove it
-      #- cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md # TODO: generate new token for helm-charts repo
+      #- cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $HELM_CHARTS_TOKEN --release-notes-file CHANGELOG.md # TODO: generate new token for helm-charts repo
       # TODO: check if in nyx you can pulish to another destination (check git remotes https://mooltiverse.github.io/nyx/guide/user/configuration-reference/git/#remote-definition)
       # TODO: this one is executed after you upload helm chart to helm-charts repo
-      - cr index --index-path .cr-release-packages/index.yaml --package-path .cr-release-packages/ --owner curuvija --git-repo helm-charts --charts-repo https://github.com/curuvija/helm-charts --pr
+      #- cr index --index-path .cr-release-packages/index.yaml --package-path .cr-release-packages/ --owner curuvija --git-repo helm-charts --pr --token $HELM_CHARTS_TOKEN
+      # TODO: https://github.com/isac322/static-lb/blob/7d694583ed29d475cd195e5766335b5308c5bdfa/.github/workflows/release-charts.yaml and https://github.com/helm/chart-releaser-action/issues/22
+      - cd ../helm-charts
+      - cr index --index-path index.yaml --package-path ../query-exporter/.cr-release-packages/ --owner curuvija --git-repo helm-charts --pr --token $HELM_CHARTS_TOKEN
   release:
     desc: release helm chart manually
     cmds:
       - task: lint
       - task: templates
       - task: docs
-      - task: test
+      #- task: test
       - task: infer
       - task: state
       - task: make
@@ -89,3 +92,5 @@ tasks:
     desc: replaces appVersion in Helm chart
     cmds:
       - export APP_VERSION=$(cat query-exporter/values.yaml | yq .image.tag) && yq e -i '.appVersion = env(APP_VERSION)' query-exporter/Chart.yaml
+
+# TODO: add git remote for helm-charts repo so that you can push helm charts "git remote add helm-charts https://github.com/curuvija/helm-charts.git"

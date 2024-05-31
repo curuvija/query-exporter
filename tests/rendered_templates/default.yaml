@@ -5,7 +5,7 @@ kind: ServiceAccount
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.1.0
+    helm.sh/chart: query-exporter-2.1.0-develop.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
@@ -19,7 +19,7 @@ kind: Service
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.1.0
+    helm.sh/chart: query-exporter-2.1.0-develop.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
@@ -45,7 +45,7 @@ kind: Deployment
 metadata:
   name: default-query-exporter
   labels:
-    helm.sh/chart: query-exporter-2.1.0
+    helm.sh/chart: query-exporter-2.1.0-develop.1
     app.kubernetes.io/name: query-exporter
     app.kubernetes.io/instance: default
     app: default
@@ -114,7 +114,7 @@ metadata:
   name: default-query-exporter
   labels:
     app: query-exporter
-    chart: query-exporter-2.1.0
+    chart: query-exporter-2.1.0-develop.1
     heritage: Helm
 spec:
   selector:

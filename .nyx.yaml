@@ -21,6 +21,9 @@ changelog:
   substitutions:
     "(?m)#([0-9]+)(?s)": "[#%s](https://github.com/curuvija/query-exporter/issues/%s)"
 releaseTypes:
+  remoteRepositories:
+    - origin
+    - helm-charts
   enabled:
     - mainline
     - develop
@@ -41,10 +44,13 @@ releaseTypes:
       #   CI: "^true$"                 # only match this release type when running on CI servers
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
       publish: "true"
-    develop: 
+    develop:
+      description: "{{#fileContent}}CHANGELOG.md{{/fileContent}}"
+      assets:
+      - chart
       collapseVersions: true
-      collapsedVersionQualifier: ""
-      description: "Develop release "
+      collapsedVersionQualifier: "develop"
+      releaseLenient: "true"
       #filterTags: "^()?([0-9]\\d*)\\.([0-9]\\d*)\\.([0-9]\\d*)(-(develop|development|integration|latest)(\\.([0-9]\\d*))?)$"
       gitCommit: "false"
       gitPush: "true"
@@ -67,12 +73,12 @@ git:
     origin:
       user: "curuvija"
       password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
-# TODO: check if you can push artifacts (helm chart) to curuvija/helm-charts repository
-    # helm-charts:
-    #   user: "curuvija"
-    #   password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
+    helm-charts:
+      user: "curuvija"
+      password: "{{#environmentVariable}}HELM_CHARTS_GH_TOKEN{{/environmentVariable}}"
 
-dryRun: true # use this together with verbosity and check logs in terminal
+
+dryRun: false # use this together with verbosity and check logs in terminal
 verbosity: "DEBUG" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
 substitutions:
   enabled:
