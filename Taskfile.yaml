@@ -38,9 +38,12 @@ tasks:
   upload:
     desc: upload packaged helm chart to github repository releases page
     cmds:
-      - git checkout master
-      - cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md
-      - cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md
+      #- git checkout master
+      #- cr upload -o curuvija --git-repo $GITHUB_REPO --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md # TODO: this is done by nyx, remove it
+      #- cr upload -o curuvija --git-repo helm-charts --package-path .cr-release-packages/ --token $GH_TOKEN --release-notes-file CHANGELOG.md # TODO: generate new token for helm-charts repo
+      # TODO: check if in nyx you can pulish to another destination (check git remotes https://mooltiverse.github.io/nyx/guide/user/configuration-reference/git/#remote-definition)
+      # TODO: this one is executed after you upload helm chart to helm-charts repo
+      - cr index --index-path .cr-release-packages/index.yaml --package-path .cr-release-packages/ --owner curuvija --git-repo helm-charts --charts-repo https://github.com/curuvija/helm-charts --pr
   release:
     desc: release helm chart manually
     cmds:

@@ -35,7 +35,7 @@ releaseTypes:
       gitTag: "true"
       #gitTagForce: "true"
       #gitPushForce: "true"
-      matchBranches: "^(master)$" # publish only from master branch
+      #matchBranches: "^(master)$" # publish only from master branch
       # matchEnvironmentVariables: 
       #   CI: "^true$"                 # only match this release type when running on CI servers
       #matchWorkspaceStatus: "CLEAN"  # only match this release type when the repository is clean
@@ -51,8 +51,12 @@ git:
     origin:
       user: "curuvija"
       password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
+    helm-charts:
+      user: "curuvija"
+      password: "{{#environmentVariable}}GH_TOKEN{{/environmentVariable}}"
+
 dryRun: false # use this together with verbosity and check logs in terminal
-verbosity: "WARNING" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
+verbosity: "DEBUG" # https://mooltiverse.github.io/nyx/guide/user/configuration-reference/global-options/#verbosity
 substitutions:
   enabled:
     - helm_version # sets the version in Chart.yaml
