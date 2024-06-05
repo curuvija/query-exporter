@@ -11,5 +11,8 @@ pkgs.mkShellNoCC {
     git
     trivy
     kics
+    teller
+    act
+    gh
   ];
 }

@@ -83,7 +83,14 @@ tasks:
   publish:
     desc: publish nyx
     cmds:
-      - nyx publish
+      #- nyx publish
+      # TODO: use gh tool to create release on helm-chart repo `gh release view --repo curuvija/query-exporter`
+      #- gh repo clone curuvija/helm-charts build/helm-charts
+      #- cd build/helm-charts
+      - |
+        cd build/helm-charts
+        cr upload -o curuvija --git-repo helm-charts --package-path ../../.cr-release-packages --token $HELM_CHARTS_TOKEN --release-notes-file CHANGELOG.md
+        cr index --index-path index.yaml --package-path ../../.cr-release-packages/ --owner curuvija --git-repo helm-charts --pr --token $HELM_CHARTS_TOKEN
   state:
     desc: build nyx state file
     cmds:
