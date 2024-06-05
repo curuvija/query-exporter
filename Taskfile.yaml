@@ -50,17 +50,18 @@ tasks:
   release:
     desc: release helm chart manually
     cmds:
-      - task: lint
+      #- task: lint
+      - task: commitlint
+      - task: cleanup
       - task: templates
       - task: docs
       #- task: test
       - task: infer
-      - task: state
+      #- task: state
       - task: make
       - task: package
       - task: mark
       - task: publish
-      - task: upload
   templates:
     desc: renders templates into folder
     cmds:
@@ -68,7 +69,6 @@ tasks:
   infer:
     desc: nyx summary
     cmds:
-      - nyx --summary infer
       - nyx infer --summary-file=build/nyx_summary
       #- docker run -it --rm -v .:/project mooltiverse/nyx:latest --summary infer
   mark:
@@ -83,21 +83,19 @@ tasks:
   publish:
     desc: publish nyx
     cmds:
-      #- nyx publish
-      # TODO: use gh tool to create release on helm-chart repo `gh release view --repo curuvija/query-exporter`
-      #- gh repo clone curuvija/helm-charts build/helm-charts
-      #- cd build/helm-charts
+      - nyx publish
+      - gh repo clone curuvija/helm-charts build/helm-charts
       - |
         cd build/helm-charts
-        cr upload -o curuvija --git-repo helm-charts --package-path ../../.cr-release-packages --token $HELM_CHARTS_TOKEN --release-notes-file CHANGELOG.md
-        cr index --index-path index.yaml --package-path ../../.cr-release-packages/ --owner curuvija --git-repo helm-charts --pr --token $HELM_CHARTS_TOKEN
-  state:
-    desc: build nyx state file
-    cmds:
-      - nyx --state-file=build/nyx-state.json infer
+        cr upload --config ../../cr.yaml --token $HELM_CHARTS_GH_TOKEN
+        cr index --config ../../cr.yaml --token $HELM_CHARTS_GH_TOKEN
+      #- cr upload -o curuvija --git-repo helm-charts --package-path ../../.cr-release-packages --token $HELM_CHARTS_TOKEN --release-notes-file CHANGELOG.md
+      #- cr index --index-path index.yaml --package-path ../../.cr-release-packages/ --owner curuvija --git-repo helm-charts --pr --token $HELM_CHARTS_TOKEN
   appVersion:
     desc: replaces appVersion in Helm chart
     cmds:
       - export APP_VERSION=$(cat query-exporter/values.yaml | yq .image.tag) && yq e -i '.appVersion = env(APP_VERSION)' query-exporter/Chart.yaml
-
-# TODO: add git remote for helm-charts repo so that you can push helm charts "git remote add helm-charts https://github.com/curuvija/helm-charts.git"
+  cleanup:
+    desc: run cleanup job
+    cmds:
+      - rm -rf build

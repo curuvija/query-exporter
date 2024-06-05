@@ -1,0 +1,9 @@
+owner: curuvija
+git-repo: helm-charts
+package-path: ../../.cr-release-packages
+release-notes-file: "CHANGELOG.md"
+index-path: "index.yaml"
+skip-existing: "true"
+pr: "true"
+#git-base-url: https://api.github.com/
+#git-upload-url: https://uploads.github.com/
